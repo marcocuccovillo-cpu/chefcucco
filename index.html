@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mise en Froid</title>
+<meta name="theme-color" content="#0a0e13">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark;--bg:#0a0e13;--card:#121922;--tx:#d6e2ee;--mut:#7a8b9d;--ac:#00c2ff;--ok:#22d17c;--warn:#ffb020;--bad:#ff4d5e;--fr:#46535f;--fr2:#1a222a;--in:#080c10;--line:#243140}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:80px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:12px 14px 8px}
+h1{margin:0 0 8px;font-size:22px}
+.tabs{display:flex;gap:6px;background:var(--card);padding:4px;border-radius:12px}
+.tabs button{flex:1;border:0;background:none;color:var(--mut);padding:9px;border-radius:9px;font-size:15px;font-weight:600}
+.tabs button.on{background:var(--ac);color:#001821}
+main{padding:6px 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:22px}
+.btn{border:0;background:var(--ac);color:#001821;padding:12px 16px;border-radius:12px;font-size:15px;font-weight:600}
+.btn.sec{background:var(--card);color:var(--tx);border:1px solid var(--line)}
+.btn.bad{background:var(--bad);color:#fff}
+.empty{text-align:center;color:var(--mut);padding:50px 20px}
+.empty .big{font-size:64px}
+.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));box-shadow:0 6px 18px #0005;border-radius:30px;padding:14px 20px}
+/* appliances */
+.fr{position:relative;padding:12px 12px 18px;border-radius:20px;background:linear-gradient(100deg,var(--fr) 0%,var(--fr2) 100%);box-shadow:0 10px 24px #0003,inset 0 2px 0 #fff6}
+.fr:after{content:"";position:absolute;left:14%;right:14%;bottom:-9px;height:9px;background:#0006;border-radius:0 0 8px 8px}
+.fr .hd2{display:flex;justify-content:space-between;align-items:center;margin:0 4px 8px}
+.fr .nm{font-weight:700;font-size:16px}
+.fr .bd{font-size:11px;color:var(--mut);display:block;font-weight:500}
+.fr .x{border:0;background:#0002;color:var(--tx);border-radius:8px;padding:5px 9px}
+.body{display:flex;gap:6px}
+.door{position:relative;flex:1;min-width:0;padding:5px;border-radius:12px;background:linear-gradient(180deg,var(--fr2),var(--fr))}
+.cab{background:var(--in);border-radius:8px;box-shadow:inset 0 3px 10px #0004;overflow:hidden}
+.hd{position:absolute;top:30%;bottom:30%;width:6px;border-radius:4px;background:linear-gradient(90deg,#fff9,#7889);right:-1px}
+.door:first-child:not(:last-child) .hd{right:-3px}
+.door:last-child:not(:first-child) .hd{right:auto;left:-3px}
+.sh{padding:6px 8px 8px;border-bottom:3px solid var(--line);min-height:62px}
+.sh:last-child{border-bottom:0}
+.zl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin-bottom:4px}
+.ch{display:flex;flex-wrap:wrap;gap:5px}
+.chip{border:0;background:var(--card);color:var(--tx);padding:5px 9px;border-radius:14px;font-size:12px;border-left:4px solid var(--ok);box-shadow:0 1px 3px #0003}
+.chip.warn{border-color:var(--warn)}.chip.bad{border-color:var(--bad);background:#d6454522}
+.chip b{color:var(--mut);font-weight:600;margin-left:3px}
+.add{border:1px dashed var(--mut);background:none;color:var(--mut);border-radius:14px;padding:4px 11px;font-size:13px}
+.frigo .cab,.cella .cab{min-height:240px}
+.cella{background:linear-gradient(100deg,#34546b,#1c3040)}
+.cella:before{content:"❄️ CELLA";position:absolute;right:16px;top:14px;font-size:10px;font-weight:700;letter-spacing:.1em;color:#7fd8ff}
+.cella .nm,.cella .bd{color:#e6f4ff}
+.cella .cab{background:repeating-linear-gradient(90deg,#0c141b 0 22px,#101b25 22px 24px)}
+:root[data-theme="dark"] .cella .cab{background:#0f1b24}
+.congelatore{padding-top:14px}
+.lid{height:22px;margin:0 2px 6px;border-radius:12px 12px 4px 4px;background:linear-gradient(180deg,#fff8,var(--fr2));box-shadow:0 2px 4px #0003;position:relative}
+.lid:after{content:"";position:absolute;left:50%;top:6px;width:56px;height:8px;margin-left:-28px;border-radius:5px;background:#556}
+.congelatore .cab{display:grid;grid-template-columns:1fr 1fr;background:#0b1822}
+:root[data-theme="dark"] .congelatore .cab{background:#122736}
+.congelatore .sh{border-bottom:0;border-right:3px solid var(--line);min-height:96px}
+.congelatore .sh:last-child{border-right:0}
+.congelatore .hd{display:none}
+.ttl{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.ttl h1{margin:0;letter-spacing:.02em}
+.zl,.bd{font-family:ui-monospace,Menlo,Consolas,monospace}
+.fr{border:1px solid #ffffff14}
+.fr .nm:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok);margin-right:8px;vertical-align:middle}
+.chip{box-shadow:0 0 0 1px #ffffff12}
+/* shopping */
+.row{display:flex;align-items:center;gap:10px;background:var(--card);padding:12px;border-radius:12px;margin-bottom:8px}
+.row.done span{text-decoration:line-through;color:var(--mut)}
+.row input[type=checkbox]{width:22px;height:22px;accent-color:var(--ok)}
+.row span{flex:1}
+.addrow{display:flex;gap:8px;margin-bottom:12px}
+input,select{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--tx);font-size:16px}
+/* modal */
+#m{position:fixed;inset:0;background:#0008;display:none;align-items:flex-end;justify-content:center;z-index:20}
+#m.on{display:flex}
+.box{background:var(--card);width:100%;max-width:480px;max-height:92%;overflow:auto;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px))}
+.box h2{margin:0 0 12px;font-size:18px}
+.box label{display:block;font-size:12px;color:var(--mut);margin:10px 0 4px}
+.acts{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}.acts .btn{flex:1}
+.two{display:flex;gap:8px}
+.box img{width:100%;border-radius:12px;margin-top:10px}
+#t{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#000c;color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;display:none;z-index:30}
+</style></head>
+<body>
+<header class="top"><div class="ttl"><h1>🧊 Mise en Froid</h1><button class="btn" id="inst" data-a="inst" style="display:none;padding:8px 12px;font-size:13px">⬇ Installa</button></div>
+<div class="tabs"><button data-a="tab" data-v="f" class="on">Frigoriferi</button><button data-a="tab" data-v="s">Spesa <span id="cnt"></span></button></div></header>
+<main id="app"></main>
+<div id="m"></div><div id="t"></div>
+<script>
+var S={fridges:[],shop:[]},tab='f',cur={};
+try{var r=localStorage.getItem('fc');if(r)S=JSON.parse(r)}catch(e){}
+function save(){try{localStorage.setItem('fc',JSON.stringify(S))}catch(e){}}
+function uid(){return Math.random().toString(36).slice(2,9)}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function $(s){return document.querySelector(s)}
+function toast(x){var t=$('#t');t.textContent=x;t.style.display='block';setTimeout(function(){t.style.display='none'},1800)}
+var CL={frigo:'Frigo',cella:'Cella',congelatore:'Congelatore'};
+function dims(f){return{cols:f.cls==='frigo'&&f.doors==2?2:1,n:f.cls==='congelatore'?2:(f.n||(f.cls==='cella'?5:4))}}
+function zlabel(f,i){var n=dims(f).n,k=i%n+1;if(f.cls==='cella')return'Scaffale '+k;if(f.cls==='congelatore')return k==1?'Pozzetto alto':'Fondo';return(dims(f).cols==2?(i<n?'Sx ':'Dx '):'')+'Ripiano '+k}
+function days(e){if(!e)return 99;var d=new Date();d.setHours(0,0,0,0);return Math.round((new Date(e+'T00:00:00')-d)/864e5)}
+function chip(f,it){var d=days(it.exp),c=d<0?'bad':d<=2?'warn':'';return '<button class="chip '+c+'" data-a="chip" data-f="'+f.id+'" data-i="'+it.id+'">'+esc(it.name)+(it.qty?'<b>'+esc(it.qty)+esc(it.unit||'')+'</b>':'')+'</button>'}
+function fridgeHTML(f){var D=dims(f),h='';
+ for(var c=0;c<D.cols;c++){var s='';
+  for(var i=0;i<D.n;i++){var z=c*D.n+i;
+   s+='<div class="sh"><div class="zl">'+zlabel(f,z)+'</div><div class="ch">'+f.items.filter(function(x){return x.z===z}).map(function(x){return chip(f,x)}).join('')+'<button class="add" data-a="add" data-f="'+f.id+'" data-z="'+z+'">+</button></div></div>'}
+  h+='<div class="door"><div class="cab">'+s+'</div><i class="hd"></i></div>'}
+ var sub=f.cls==='frigo'?(f.doors==2?'Frigo · doppia anta':'Frigo · anta singola'):CL[f.cls];
+ return '<section class="fr '+f.cls+'"><div class="hd2"><div class="nm">'+esc(f.name)+'<span class="bd">'+sub+' · '+f.items.length+' articoli</span></div><span><button class="x" data-a="editf" data-f="'+f.id+'">⚙</button> <button class="x" data-a="delf" data-f="'+f.id+'">🗑</button></span></div>'+(f.cls==='congelatore'?'<div class="lid"></div>':'')+'<div class="body">'+h+'</div></section>'}
+function render(){
+ $('#cnt').textContent=S.shop.filter(function(x){return!x.done}).length||'';
+ document.querySelectorAll('.tabs button').forEach(function(b){b.classList.toggle('on',b.dataset.v===tab)});
+ var h='';
+ if(tab==='f'){
+  h=S.fridges.length?'<div class="grid">'+S.fridges.map(fridgeHTML).join('')+'</div>':'<div class="empty"><div class="big">🧊</div><p>Nessun frigorifero.<br>Aggiungi il primo!</p></div>';
+  h+='<button class="btn fab" data-a="newf">+ Frigorifero</button>'}
+ else{
+  h='<div class="addrow"><input id="si" placeholder="Aggiungi ingrediente…" maxlength="60"><button class="btn" data-a="sadd">+</button></div>';
+  h+=S.shop.length?S.shop.map(function(x){return '<div class="row '+(x.done?'done':'')+'"><input type="checkbox" data-a="tog" data-i="'+x.id+'" '+(x.done?'checked':'')+'><span>'+esc(x.name)+'</span></div>'}).join(''):'<div class="empty"><div class="big">🛒</div><p>La lista è vuota.</p></div>';
+  if(S.shop.length)h+='<div class="acts"><button class="btn sec" data-a="clr">Rimuovi spuntati</button><button class="btn" data-a="share">📤 Condividi</button></div>'}
+ $('#app').innerHTML=h}
+function modal(h){$('#m').innerHTML='<div class="box">'+h+'</div>';$('#m').classList.add('on')}
+function close(){$('#m').classList.remove('on')}
+function fridgeById(id){return S.fridges.filter(function(f){return f.id===id})[0]}
+function newF(){modal('<h2>Nuovo frigorifero</h2><label>Classe</label><select id="fc"><option value="frigo">Frigo (verticale)</option><option value="cella">Cella</option><option value="congelatore">Congelatore (a pozzetto)</option></select><div id="dw"><label>Ante</label><select id="fd"><option value="1">Anta singola</option><option value="2">Anta doppia</option></select></div><div id="nw"><label id="nl">Numero di ripiani per anta</label><input id="fs" type="number" inputmode="numeric" min="1" max="12" value="4"></div><label>Nome</label><input id="fn" placeholder="es. Frigo verdure" maxlength="30"><div class="acts"><button class="btn sec" data-a="close">Annulla</button><button class="btn" data-a="savef">Crea</button></div>')}
+function itemForm(f,z,it){cur={f:f.id,z:z,i:it&&it.id};it=it||{name:'',qty:'',unit:'kg',exp:''};
+ var u=['kg','g','l','pz','conf'].map(function(x){return '<option '+(x===it.unit?'selected':'')+'>'+x+'</option>'}).join('');
+ modal('<h2>'+(it.id?'Modifica':'Nuovo')+' · '+zlabel(f,z)+'</h2><label>Ingrediente</label><input id="in" value="'+esc(it.name)+'" maxlength="40"><div class="two"><div style="flex:1"><label>Quantità</label><input id="iq" inputmode="decimal" value="'+esc(it.qty)+'"></div><div style="flex:1"><label>Unità</label><select id="iu">'+u+'</select></div></div><label>Scadenza (opzionale)</label><input id="ie" type="date" value="'+esc(it.exp||'')+'"><div class="acts"><button class="btn" data-a="savei">Salva</button>'+(it.id?'<button class="btn sec" data-a="toshop">🛒 Alla spesa</button><button class="btn bad" data-a="deli">Elimina</button>':'<button class="btn sec" data-a="close">Annulla</button>')+'</div>')}
+function addShop(n){n=n.trim();if(!n)return false;if(S.shop.some(function(x){return x.name.toLowerCase()===n.toLowerCase()&&!x.done}))return false;S.shop.push({id:uid(),name:n,done:false});return true}
+function shopText(){var l=S.shop.filter(function(x){return!x.done});return '🛒 Lista della spesa\n\n'+l.map(function(x){return '• '+x.name}).join('\n')}
+function shareImg(){var l=S.shop.filter(function(x){return!x.done}),W=720,H=200+l.length*64,c=document.createElement('canvas');c.width=W;c.height=H;var g=c.getContext('2d');
+ g.fillStyle='#eaf1f6';g.fillRect(0,0,W,H);var gr=g.createLinearGradient(0,0,W,0);gr.addColorStop(0,'#0e8fc7');gr.addColorStop(1,'#0a5f8a');g.fillStyle=gr;g.fillRect(0,0,W,120);
+ g.fillStyle='#fff';g.font='bold 44px sans-serif';g.fillText('🛒 Lista della spesa',36,62);g.font='24px sans-serif';g.fillText(new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'}),36,98);
+ l.forEach(function(x,i){var y=140+i*64;g.fillStyle='#fff';g.fillRect(28,y,W-56,54);g.fillStyle='#2e9e5b';g.fillRect(28,y,8,54);g.fillStyle='#14202b';g.font='28px sans-serif';g.fillText(x.name.slice(0,34),56,y+37)});
+ c.toBlob(function(b){if(!b){toast('Errore immagine');return}var file=new File([b],'spesa.png',{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file]}).catch(function(){})}
+  else{modal('<h2>Immagine pronta</h2><p>Tieni premuta l\'immagine per salvarla o condividerla.</p><img src="'+c.toDataURL('image/png')+'" alt="Lista"><div class="acts"><button class="btn sec" data-a="close">Chiudi</button></div>')}},'image/png')}
+document.addEventListener('click',function(e){
+ if(e.target.id==='m'){close();return}
+ var b=e.target.closest('[data-a]');if(!b)return;var a=b.dataset.a,f=b.dataset.f&&fridgeById(b.dataset.f);
+ if(a==='tab'){tab=b.dataset.v;render()}
+ else if(a==='close')close();
+ else if(a==='newf')newF();
+ else if(a==='editf'){cur={f:f.id};var cg=f.cls!=='congelatore';modal('<h2>Modifica '+esc(f.name)+'</h2><label>Nome</label><input id="en" value="'+esc(f.name)+'" maxlength="30">'+(cg?'<label>'+(f.cls==='cella'?'Numero di scaffali':'Numero di ripiani per anta')+'</label><input id="es" type="number" inputmode="numeric" min="1" max="12" value="'+dims(f).n+'">':'')+'<div class="acts"><button class="btn sec" data-a="close">Annulla</button><button class="btn" data-a="savee">Salva</button></div>')}
+ else if(a==='savee'){var fe=fridgeById(cur.f);fe.name=$('#en').value.trim()||fe.name;if(fe.cls!=='congelatore'){var o=dims(fe).n,nn=Math.max(1,Math.min(12,parseInt($('#es').value)||o));fe.items.forEach(function(x){x.z=Math.floor(x.z/o)*nn+Math.min(x.z%o,nn-1)});fe.n=nn}save();close();render()}
+ else if(a==='inst'){if(dp){dp.prompt();dp.userChoice.then(function(){dp=null;$('#inst').style.display='none'})}else modal('<h2>Installa su iPhone/iPad</h2><p>In Safari tocca Condividi, poi Aggiungi a Home.</p><div class="acts"><button class="btn" data-a="close">Ok</button></div>')}
+ else if(a==='savef'){var cls=$('#fc').value,n=$('#fn').value.trim()||(CL[cls]+' '+(S.fridges.length+1));S.fridges.push({id:uid(),name:n,cls:cls,doors:cls==='frigo'?+$('#fd').value:1,n:Math.max(1,Math.min(12,parseInt($('#fs').value)||(cls==='cella'?5:4))),items:[]});save();close();render()}
+ else if(a==='delf'){cur={f:f.id};modal('<h2>Eliminare "'+esc(f.name)+'"?</h2><p>Verranno cancellati anche gli ingredienti.</p><div class="acts"><button class="btn sec" data-a="close">Annulla</button><button class="btn bad" data-a="delf2">Elimina</button></div>')}
+ else if(a==='delf2'){S.fridges=S.fridges.filter(function(x){return x.id!==cur.f});save();close();render()}
+ else if(a==='add')itemForm(f,+b.dataset.z);
+ else if(a==='chip')itemForm(f,f.items.filter(function(x){return x.id===b.dataset.i})[0].z,f.items.filter(function(x){return x.id===b.dataset.i})[0]);
+ else if(a==='savei'){var n=$('#in').value.trim();if(!n){toast('Scrivi il nome');return}var fr=fridgeById(cur.f),it=fr.items.filter(function(x){return x.id===cur.i})[0];
+  if(!it){it={id:uid(),z:cur.z};fr.items.push(it)}it.name=n;it.qty=$('#iq').value.trim();it.unit=$('#iu').value;it.exp=$('#ie').value;save();close();render()}
+ else if(a==='deli'){var fr=fridgeById(cur.f);fr.items=fr.items.filter(function(x){return x.id!==cur.i});save();close();render()}
+ else if(a==='toshop'){var it=fridgeById(cur.f).items.filter(function(x){return x.id===cur.i})[0];toast(addShop(it.name)?'Aggiunto alla spesa':'Già in lista');save();close();render()}
+ else if(a==='sadd'){var i=$('#si');if(addShop(i.value)){save();render()}}
+ else if(a==='tog'){S.shop.forEach(function(x){if(x.id===b.dataset.i)x.done=b.checked});save();render()}
+ else if(a==='clr'){S.shop=S.shop.filter(function(x){return!x.done});save();render()}
+ else if(a==='share'){if(!S.shop.some(function(x){return!x.done})){toast('Niente da condividere');return}modal('<h2>Condividi su WhatsApp</h2><div class="acts"><button class="btn" data-a="shT">💬 Come testo</button><button class="btn" data-a="shI">🖼 Come immagine</button></div><div class="acts"><button class="btn sec" data-a="close">Annulla</button></div>')}
+ else if(a==='shT'){window.open('https://wa.me/?text='+encodeURIComponent(shopText()),'_blank');close()}
+ else if(a==='shI'){close();shareImg()}
+});
+document.addEventListener('change',function(e){if(e.target.id!=='fc')return;var v=e.target.value;$('#dw').style.display=v==='frigo'?'block':'none';$('#nw').style.display=v==='congelatore'?'none':'block';$('#nl').textContent=v==='cella'?'Numero di scaffali':'Numero di ripiani per anta';$('#fs').value=v==='cella'?5:4});
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target.id==='si'){if(addShop(e.target.value)){save();render()}}});
+var dp=null,sa=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();dp=e;if(!sa)$('#inst').style.display='inline-block'});
+window.addEventListener('appinstalled',function(){$('#inst').style.display='none'});
+if(/iphone|ipad/i.test(navigator.userAgent)&&!sa)$('#inst').style.display='inline-block';
+if('serviceWorker' in navigator)window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
+render();
+</script></body></html>
