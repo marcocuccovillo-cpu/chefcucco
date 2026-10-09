@@ -92,6 +92,7 @@ input,select{width:100%;padding:12px;border-radius:10px;border:1px solid var(--l
 <script>
 var S={fridges:[],shop:[]},tab='f',cur={};
 try{var r=localStorage.getItem('fc');if(r)S=JSON.parse(r)}catch(e){}
+S.units=S.units||[];
 function save(){try{localStorage.setItem('fc',JSON.stringify(S))}catch(e){}}
 function uid(){return Math.random().toString(36).slice(2,9)}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -101,7 +102,7 @@ var CL={frigo:'Frigo',cella:'Cella',congelatore:'Congelatore'};
 function dims(f){return{cols:f.cls==='frigo'&&f.doors==2?2:1,n:f.cls==='congelatore'?2:(f.n||(f.cls==='cella'?5:4))}}
 function zlabel(f,i){var n=dims(f).n,k=i%n+1;if(f.cls==='cella')return'Scaffale '+k;if(f.cls==='congelatore')return k==1?'Pozzetto alto':'Fondo';return(dims(f).cols==2?(i<n?'Sx ':'Dx '):'')+'Ripiano '+k}
 function days(e){if(!e)return 99;var d=new Date();d.setHours(0,0,0,0);return Math.round((new Date(e+'T00:00:00')-d)/864e5)}
-function chip(f,it){var d=days(it.exp),c=d<0?'bad':d<=2?'warn':'';return '<button class="chip '+c+'" data-a="chip" data-f="'+f.id+'" data-i="'+it.id+'">'+esc(it.name)+(it.qty?'<b>'+esc(it.qty)+esc(it.unit||'')+'</b>':'')+'</button>'}
+function chip(f,it){var d=days(it.exp),c=d<0?'bad':d<=2?'warn':'';return '<button class="chip '+c+'" data-a="chip" data-f="'+f.id+'" data-i="'+it.id+'">'+esc(it.name)+(it.qty?'<b>'+esc(it.qty)+' '+esc(it.unit||'')+'</b>':'')+'</button>'}
 function fridgeHTML(f){var D=dims(f),h='';
  for(var c=0;c<D.cols;c++){var s='';
   for(var i=0;i<D.n;i++){var z=c*D.n+i;
@@ -126,8 +127,8 @@ function close(){$('#m').classList.remove('on')}
 function fridgeById(id){return S.fridges.filter(function(f){return f.id===id})[0]}
 function newF(){modal('<h2>Nuovo frigorifero</h2><label>Classe</label><select id="fc"><option value="frigo">Frigo (verticale)</option><option value="cella">Cella</option><option value="congelatore">Congelatore (a pozzetto)</option></select><div id="dw"><label>Ante</label><select id="fd"><option value="1">Anta singola</option><option value="2">Anta doppia</option></select></div><div id="nw"><label id="nl">Numero di ripiani per anta</label><input id="fs" type="number" inputmode="numeric" min="1" max="12" value="4"></div><label>Nome</label><input id="fn" placeholder="es. Frigo verdure" maxlength="30"><div class="acts"><button class="btn sec" data-a="close">Annulla</button><button class="btn" data-a="savef">Crea</button></div>')}
 function itemForm(f,z,it){cur={f:f.id,z:z,i:it&&it.id};it=it||{name:'',qty:'',unit:'kg',exp:''};
- var u=['kg','g','l','pz','conf'].map(function(x){return '<option '+(x===it.unit?'selected':'')+'>'+x+'</option>'}).join('');
- modal('<h2>'+(it.id?'Modifica':'Nuovo')+' · '+zlabel(f,z)+'</h2><label>Ingrediente</label><input id="in" value="'+esc(it.name)+'" maxlength="40"><div class="two"><div style="flex:1"><label>Quantità</label><input id="iq" inputmode="decimal" value="'+esc(it.qty)+'"></div><div style="flex:1"><label>Unità</label><select id="iu">'+u+'</select></div></div><label>Scadenza (opzionale)</label><input id="ie" type="date" value="'+esc(it.exp||'')+'"><div class="acts"><button class="btn" data-a="savei">Salva</button>'+(it.id?'<button class="btn sec" data-a="toshop">🛒 Alla spesa</button><button class="btn bad" data-a="deli">Elimina</button>':'<button class="btn sec" data-a="close">Annulla</button>')+'</div>')}
+ var ul=['kg','g','l','pz','conf','ct','pacchetti'].concat(S.units);if(it.unit&&ul.indexOf(it.unit)<0)ul.push(it.unit);var u=ul.map(function(x){return '<option value="'+esc(x)+'" '+(x===it.unit?'selected':'')+'>'+(x==='ct'?'ct (cartoni)':esc(x))+'</option>'}).join('')+'<option value="__altro">Altro…</option>';
+ modal('<h2>'+(it.id?'Modifica':'Nuovo')+' · '+zlabel(f,z)+'</h2><label>Ingrediente</label><input id="in" value="'+esc(it.name)+'" maxlength="40"><div class="two"><div style="flex:1"><label>Quantità</label><input id="iq" inputmode="decimal" value="'+esc(it.qty)+'"></div><div style="flex:1"><label>Unità</label><select id="iu">'+u+'</select><input id="iuc" placeholder="Es. mazzi, vaschette" maxlength="14" style="display:none;margin-top:6px"></div></div><label>Scadenza (opzionale)</label><input id="ie" type="date" value="'+esc(it.exp||'')+'"><div class="acts"><button class="btn" data-a="savei">Salva</button>'+(it.id?'<button class="btn sec" data-a="toshop">🛒 Alla spesa</button><button class="btn bad" data-a="deli">Elimina</button>':'<button class="btn sec" data-a="close">Annulla</button>')+'</div>')}
 function addShop(n){n=n.trim();if(!n)return false;if(S.shop.some(function(x){return x.name.toLowerCase()===n.toLowerCase()&&!x.done}))return false;S.shop.push({id:uid(),name:n,done:false});return true}
 function shopText(){var l=S.shop.filter(function(x){return!x.done});return '🛒 Lista della spesa\n\n'+l.map(function(x){return '• '+x.name}).join('\n')}
 function shareImg(){var l=S.shop.filter(function(x){return!x.done}),W=720,H=200+l.length*64,c=document.createElement('canvas');c.width=W;c.height=H;var g=c.getContext('2d');
@@ -151,8 +152,8 @@ document.addEventListener('click',function(e){
  else if(a==='delf2'){S.fridges=S.fridges.filter(function(x){return x.id!==cur.f});save();close();render()}
  else if(a==='add')itemForm(f,+b.dataset.z);
  else if(a==='chip')itemForm(f,f.items.filter(function(x){return x.id===b.dataset.i})[0].z,f.items.filter(function(x){return x.id===b.dataset.i})[0]);
- else if(a==='savei'){var n=$('#in').value.trim();if(!n){toast('Scrivi il nome');return}var fr=fridgeById(cur.f),it=fr.items.filter(function(x){return x.id===cur.i})[0];
-  if(!it){it={id:uid(),z:cur.z};fr.items.push(it)}it.name=n;it.qty=$('#iq').value.trim();it.unit=$('#iu').value;it.exp=$('#ie').value;save();close();render()}
+ else if(a==='savei'){var n=$('#in').value.trim();if(!n){toast('Scrivi il nome');return}var un=$('#iu').value;if(un==='__altro'){un=$('#iuc').value.trim();if(!un){toast('Scrivi l unità');return}if(['kg','g','l','pz','conf','ct','pacchetti'].concat(S.units).indexOf(un)<0)S.units.push(un)}var fr=fridgeById(cur.f),it=fr.items.filter(function(x){return x.id===cur.i})[0];
+  if(!it){it={id:uid(),z:cur.z};fr.items.push(it)}it.name=n;it.qty=$('#iq').value.trim();it.unit=un;it.exp=$('#ie').value;save();close();render()}
  else if(a==='deli'){var fr=fridgeById(cur.f);fr.items=fr.items.filter(function(x){return x.id!==cur.i});save();close();render()}
  else if(a==='toshop'){var it=fridgeById(cur.f).items.filter(function(x){return x.id===cur.i})[0];toast(addShop(it.name)?'Aggiunto alla spesa':'Già in lista');save();close();render()}
  else if(a==='sadd'){var i=$('#si');if(addShop(i.value)){save();render()}}
@@ -163,6 +164,7 @@ document.addEventListener('click',function(e){
  else if(a==='shI'){close();shareImg()}
 });
 document.addEventListener('change',function(e){if(e.target.id!=='fc')return;var v=e.target.value;$('#dw').style.display=v==='frigo'?'block':'none';$('#nw').style.display=v==='congelatore'?'none':'block';$('#nl').textContent=v==='cella'?'Numero di scaffali':'Numero di ripiani per anta';$('#fs').value=v==='cella'?5:4});
+document.addEventListener('change',function(e){if(e.target.id==='iu'){var c=$('#iuc'),a=e.target.value==='__altro';c.style.display=a?'block':'none';if(a)c.focus()}});
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target.id==='si'){if(addShop(e.target.value)){save();render()}}});
 var dp=null,sa=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
 window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();dp=e;if(!sa)$('#inst').style.display='inline-block'});
