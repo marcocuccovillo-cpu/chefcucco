@@ -16,7 +16,7 @@ body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-
 header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:12px 14px 8px}
 h1{margin:0 0 8px;font-size:22px}
 .tabs{display:flex;gap:6px;background:var(--card);padding:4px;border-radius:12px}
-.tabs button{flex:1;border:0;background:none;color:var(--mut);padding:9px;border-radius:9px;font-size:15px;font-weight:600}
+.tabs button{flex:1;border:0;background:none;color:var(--mut);padding:9px 2px;border-radius:9px;font-size:13px;font-weight:600}
 .tabs button.on{background:var(--ac);color:#001821}
 main{padding:6px 14px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:22px}
@@ -73,6 +73,14 @@ main{padding:6px 14px}
 .row span{flex:1}
 .addrow{display:flex;gap:8px;margin-bottom:12px}
 input,select{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--tx);font-size:16px}
+.bg{display:inline-block;min-width:16px;margin-left:4px;padding:0 4px;border-radius:8px;background:var(--bad);color:#fff;font-size:10px;line-height:16px}.bg:empty{display:none}.bg#cnt{background:var(--ac);color:#001821}
+.ex{border-left:4px solid var(--ok);cursor:pointer}.ex.warn{border-color:var(--warn)}.ex.bad{border-color:var(--bad)}
+.ex small,.hc small{display:block;color:var(--mut);font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace;margin-top:2px}
+.x2{border:0;background:#ffffff12;color:var(--tx);border-radius:8px;padding:8px 10px;font-size:15px}
+.gt{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:16px 2px 8px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.hc{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px}.hh{display:flex;justify-content:space-between;align-items:center}
+.st{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;padding:3px 9px;border-radius:8px;background:#ffffff12}.st.ok{color:var(--ok)}.st.bad{color:var(--bad);background:#ff4d5e22}
+.hi{font-size:12px;color:var(--mut);padding:3px 0;font-family:ui-monospace,Menlo,Consolas,monospace}.hi.bad{color:var(--bad)}
 /* modal */
 #m{position:fixed;inset:0;background:#0008;display:none;align-items:flex-end;justify-content:center;z-index:20}
 #m.on{display:flex}
@@ -86,7 +94,7 @@ input,select{width:100%;padding:12px;border-radius:10px;border:1px solid var(--l
 </style></head>
 <body>
 <header class="top"><div class="ttl"><h1>🧊 Mise en Froid</h1><button class="btn" id="inst" data-a="inst" style="display:none;padding:8px 12px;font-size:13px">⬇ Installa</button></div>
-<div class="tabs"><button data-a="tab" data-v="f" class="on">Frigoriferi</button><button data-a="tab" data-v="s">Spesa <span id="cnt"></span></button></div></header>
+<div class="tabs"><button data-a="tab" data-v="f" class="on">Frigo</button><button data-a="tab" data-v="e">Scadenze<span class="bg" id="cne"></span></button><button data-a="tab" data-v="h">HACCP<span class="bg" id="cnh"></span></button><button data-a="tab" data-v="s">Spesa<span class="bg" id="cnt"></span></button></div></header>
 <main id="app"></main>
 <div id="m"></div><div id="t"></div>
 <script>
@@ -109,14 +117,35 @@ function fridgeHTML(f){var D=dims(f),h='';
    s+='<div class="sh"><div class="zl">'+zlabel(f,z)+'</div><div class="ch">'+f.items.filter(function(x){return x.z===z}).map(function(x){return chip(f,x)}).join('')+'<button class="add" data-a="add" data-f="'+f.id+'" data-z="'+z+'">+</button></div></div>'}
   h+='<div class="door"><div class="cab">'+s+'</div><i class="hd"></i></div>'}
  var sub=f.cls==='frigo'?(f.doors==2?'Frigo · doppia anta':'Frigo · anta singola'):CL[f.cls];
- return '<section class="fr '+f.cls+'"><div class="hd2"><div class="nm">'+esc(f.name)+'<span class="bd">'+sub+' · '+f.items.length+' articoli</span></div><span><button class="x" data-a="editf" data-f="'+f.id+'">⚙</button> <button class="x" data-a="delf" data-f="'+f.id+'">🗑</button></span></div>'+(f.cls==='congelatore'?'<div class="lid"></div>':'')+'<div class="body">'+h+'</div></section>'}
+ return '<section class="fr '+f.cls+'"><div class="hd2"><div class="nm">'+esc(f.name)+'<span class="bd">'+sub+' · '+f.items.length+' articoli'+lastT(f)+'</span></div><span><button class="x" data-a="editf" data-f="'+f.id+'">⚙</button> <button class="x" data-a="delf" data-f="'+f.id+'">🗑</button></span></div>'+(f.cls==='congelatore'?'<div class="lid"></div>':'')+'<div class="body">'+h+'</div></section>'}
+function lim(f){return f.cls==='congelatore'?{max:-18}:{min:0,max:4}}
+function okT(f,v){var l=lim(f);return v<=l.max&&(l.min===undefined||v>=l.min)}
+function tgt(f){return f.cls==='congelatore'?'≤ -18°C':'0 / +4°C'}
+function fmt(t){return new Date(t).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}
+function isToday(t){return new Date(t).toDateString()===new Date().toDateString()}
+function lastT(f){var a=f.temps||[],l=a[a.length-1];if(!l||!isToday(l.t))return ' · <span style="color:var(--warn)">🌡 da registrare</span>';return ' · <span style="color:var(--'+(l.ok?'ok':'bad')+')">🌡 '+l.v+'°C</span>'}
+function dl(d){return d<0?'scaduto da '+(-d)+' g':d===0?'scade oggi':d===1?'scade domani':'tra '+d+' g'}
+function expHTML(){var L=[];S.fridges.forEach(function(f){f.items.forEach(function(it){if(it.exp){var d=days(it.exp);if(d<=7)L.push({f:f,it:it,d:d})}})});L.sort(function(a,b){return a.d-b.d});
+ if(!L.length)return '<div class="empty"><div class="big">✅</div><p>Nessuna scadenza nei prossimi 7 giorni.</p></div>';
+ var G=[['Scaduti',function(d){return d<0}],['Oggi',function(d){return d===0}],['Domani',function(d){return d===1}],['Entro 3 giorni',function(d){return d>=2&&d<=3}],['Entro 7 giorni',function(d){return d>=4}]],h='';
+ G.forEach(function(g){var r=L.filter(function(x){return g[1](x.d)});if(!r.length)return;h+='<div class="gt">'+g[0]+' · '+r.length+'</div>'+r.map(function(x){var c=x.d<0?'bad':x.d<=2?'warn':'';return '<div class="row ex '+c+'" data-a="chip" data-f="'+x.f.id+'" data-i="'+x.it.id+'"><span><b>'+esc(x.it.name)+'</b>'+(x.it.qty?' · '+esc(x.it.qty)+' '+esc(x.it.unit||''):'')+'<small>'+esc(x.f.name)+' · '+zlabel(x.f,x.it.z)+' · '+dl(x.d)+'</small></span><button class="x2" data-a="xshop" data-f="'+x.f.id+'" data-i="'+x.it.id+'">🛒</button><button class="x2" data-a="xdel" data-f="'+x.f.id+'" data-i="'+x.it.id+'">🗑</button></div>'}).join('')});return h}
+function hacHTML(){if(!S.fridges.length)return '<div class="empty"><div class="big">🌡</div><p>Aggiungi prima un frigorifero.</p></div>';
+ return S.fridges.map(function(f){var a=f.temps||[],l=a[a.length-1];
+  var st=l?'<span class="st '+(l.ok?'ok':'bad')+'">'+l.v+'°C '+(l.ok?'✓':'⚠')+'</span>':'<span class="st">—</span>';
+  var hist=a.slice(-5).reverse().map(function(e){return '<div class="hi '+(e.ok?'':'bad')+'">'+fmt(e.t)+' · <b>'+e.v+'°C</b>'+(e.act?' · '+esc(e.act):'')+'</div>'}).join('');
+  return '<div class="hc"><div class="hh"><b>'+esc(f.name)+'</b>'+st+'</div><small>Obiettivo '+tgt(f)+(l?' · ultima '+fmt(l.t):'')+'</small><div class="addrow" style="margin:10px 0 6px"><button class="btn sec" data-a="tsign" data-f="'+f.id+'">±</button><input id="t_'+f.id+'" inputmode="decimal" placeholder="Temperatura °C"><button class="btn" data-a="tlog" data-f="'+f.id+'">Registra</button></div>'+hist+'</div>'}).join('')+'<div class="acts"><button class="btn" data-a="tshare">📤 Condividi registro (7 giorni)</button></div>'}
+function logText(){var m=Date.now()-7*864e5,o='🌡 Registro temperature\n';S.fridges.forEach(function(f){var a=(f.temps||[]).filter(function(e){return e.t>=m});o+='\n'+f.name+' ('+tgt(f)+')\n'+(a.length?a.map(function(e){return fmt(e.t)+' '+e.v+'°C '+(e.ok?'✓':'⚠'+(e.act?' '+e.act:''))}).join('\n'):'nessuna rilevazione')+'\n'});return o}
 function render(){
  $('#cnt').textContent=S.shop.filter(function(x){return!x.done}).length||'';
+ var ne=0;S.fridges.forEach(function(f){f.items.forEach(function(it){if(it.exp&&days(it.exp)<=2)ne++})});$('#cne').textContent=ne||'';
+ $('#cnh').textContent=S.fridges.filter(function(f){var a=f.temps||[];return!a.length||!isToday(a[a.length-1].t)}).length||'';
  document.querySelectorAll('.tabs button').forEach(function(b){b.classList.toggle('on',b.dataset.v===tab)});
  var h='';
  if(tab==='f'){
   h=S.fridges.length?'<div class="grid">'+S.fridges.map(fridgeHTML).join('')+'</div>':'<div class="empty"><div class="big">🧊</div><p>Nessun frigorifero.<br>Aggiungi il primo!</p></div>';
   h+='<button class="btn fab" data-a="newf">+ Frigorifero</button>'}
+ else if(tab==='e')h=expHTML();
+ else if(tab==='h')h=hacHTML();
  else{
   h='<div class="addrow"><input id="si" placeholder="Aggiungi ingrediente…" maxlength="60"><button class="btn" data-a="sadd">+</button></div>';
   h+=S.shop.length?S.shop.map(function(x){return '<div class="row '+(x.done?'done':'')+'"><input type="checkbox" data-a="tog" data-i="'+x.id+'" '+(x.done?'checked':'')+'><span>'+esc(x.name)+'</span></div>'}).join(''):'<div class="empty"><div class="big">🛒</div><p>La lista è vuota.</p></div>';
@@ -144,6 +173,13 @@ document.addEventListener('click',function(e){
  if(a==='tab'){tab=b.dataset.v;render()}
  else if(a==='close')close();
  else if(a==='newf')newF();
+ else if(a==='xshop'){var it0=f.items.filter(function(x){return x.id===b.dataset.i})[0];toast(addShop(it0.name)?'Aggiunto alla spesa':'Già in lista');save();render()}
+ else if(a==='xdel'){f.items=f.items.filter(function(x){return x.id!==b.dataset.i});save();render();toast('Eliminato')}
+ else if(a==='tsign'){var ti=$('#t_'+f.id),tv=ti.value.trim();ti.value=tv[0]==='-'?tv.slice(1):'-'+tv;ti.focus()}
+ else if(a==='tlog'){var tv2=parseFloat($('#t_'+f.id).value.replace(',','.'));if(isNaN(tv2)){toast('Scrivi la temperatura');return}f.temps=f.temps||[];var en={t:Date.now(),v:tv2,ok:okT(f,tv2)};f.temps.push(en);if(f.temps.length>120)f.temps=f.temps.slice(-120);save();render();
+  if(!en.ok){cur={f:f.id};modal('<h2>⚠ Fuori range</h2><p>'+tv2+'°C: obiettivo '+tgt(f)+'. Azione correttiva (opzionale):</p><input id="ta" placeholder="es. porta aperta, chiamato tecnico" maxlength="80"><div class="acts"><button class="btn sec" data-a="close">Salta</button><button class="btn" data-a="tact">Salva</button></div>')}else toast('Registrata ✓')}
+ else if(a==='tact'){var ff=fridgeById(cur.f);ff.temps[ff.temps.length-1].act=$('#ta').value.trim();save();close();render()}
+ else if(a==='tshare'){window.open('https://wa.me/?text='+encodeURIComponent(logText()),'_blank')}
  else if(a==='editf'){cur={f:f.id};var cg=f.cls!=='congelatore';modal('<h2>Modifica '+esc(f.name)+'</h2><label>Nome</label><input id="en" value="'+esc(f.name)+'" maxlength="30">'+(cg?'<label>'+(f.cls==='cella'?'Numero di scaffali':'Numero di ripiani per anta')+'</label><input id="es" type="number" inputmode="numeric" min="1" max="12" value="'+dims(f).n+'">':'')+'<div class="acts"><button class="btn sec" data-a="close">Annulla</button><button class="btn" data-a="savee">Salva</button></div>')}
  else if(a==='savee'){var fe=fridgeById(cur.f);fe.name=$('#en').value.trim()||fe.name;if(fe.cls!=='congelatore'){var o=dims(fe).n,nn=Math.max(1,Math.min(12,parseInt($('#es').value)||o));fe.items.forEach(function(x){x.z=Math.floor(x.z/o)*nn+Math.min(x.z%o,nn-1)});fe.n=nn}save();close();render()}
  else if(a==='inst'){if(dp){dp.prompt();dp.userChoice.then(function(){dp=null;$('#inst').style.display='none'})}else modal('<h2>Installa su iPhone/iPad</h2><p>In Safari tocca Condividi, poi Aggiungi a Home.</p><div class="acts"><button class="btn" data-a="close">Ok</button></div>')}
